@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useState } from 'react';
-import { axiosbaseurl } from '../../axios/axios';
-import { useAuth } from '../../context/AuthContext';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { axiosbaseurl } from "../../axios/axios";
+import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { AlertCircle, Bike } from "lucide-react";
 
 function Signin() {
-  const { login } = useAuth(); // ✅ global state
+  const { login } = useAuth();
   const router = useRouter();
 
   const [form, setForm] = useState({
-    phone_number: '',
-    password: ''
+    phone_number: "",
+    password: ""
   });
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -28,18 +30,18 @@ function Signin() {
     setMessage("");
 
     try {
-      const res = await axiosbaseurl.post("/auth/signin", form); // ✅ FIXED endpoint
+      const res = await axiosbaseurl.post("/auth/signin", form);
       const data = res.data;
-       
-      // ✅ SAVE USER TO GLOBAL + localStorage
+
+      // ✅ save user globally (context)
       if (data.user) {
         login(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
 
       setMessage("Login successful ✅");
-      console.log(data);
 
-      // ✅ redirect to profile
+      // ✅ role-based redirect
       if (data.user.role === "admin") {
         router.push("/admin");
       } else {
@@ -49,7 +51,7 @@ function Signin() {
     } catch (err) {
       console.error(err);
 
-      if (err.response && err.response.data) {
+      if (err.response?.data) {
         setMessage(err.response.data.error || "Login failed");
       } else {
         setMessage("Server error");
@@ -58,37 +60,74 @@ function Signin() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "auto" }}>
-      <h2>Signin</h2>
+    <div className="flex  items-center justify-center px-4">
 
-      <form onSubmit={handleSubmit}>
+      <div className="w-full max-w-md">
 
-        <input
-          type="text"
-          name="phone_number"
-          placeholder="Phone Number"
-          value={form.phone_number}
-          onChange={handleChange}
-          required
-        />
+        {/* HEADER */}
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-green-500">
+            <Bike className="h-7 w-7" />
+            RideFlow
+          </Link>
+          <p className="mt-2 text-gray-500">Welcome back</p>
+        </div>
 
-        <br /><br />
+        {/* CARD */}
+        <div className="">
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+          {/* MESSAGE */}
+          {message && (
+            <div className="mb-4 flex items-center gap-2 text-sm text-red-600">
+              <AlertCircle className="h-4 w-4" />
+              {message}
+            </div>
+          )}
 
-        <br /><br />
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-        <button type="submit">Sign In</button>
-      </form>
+            <div>
+              <label className="text-sm font-medium">Phone Number</label>
+              <input
+                type="text"
+                name="phone_number"
+                value={form.phone_number}
+                onChange={handleChange}
+                required
+                className="w-full border p-2 rounded mt-1"
+              />
+            </div>
 
-      {message && <p>{message}</p>}
+            <div>
+              <label className="text-sm font-medium">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                className="w-full border p-2 rounded mt-1"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="button"
+            >
+              Log In
+            </button>
+
+          </form>
+
+          {/* <p className="mt-6 text-center text-sm">
+            Don't have an account?{" "}
+            <Link href="/register" className="text-blue-600 hover:underline">
+              Sign up
+            </Link>
+          </p> */}
+
+        </div>
+      </div>
     </div>
   );
 }

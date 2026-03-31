@@ -14,25 +14,42 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
     --foreground: #ededed;
   }
 }
 
 body {
+  color: black !important;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-button {
-  background-color: var(--foreground);
-  color: var(--background);
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
+body {
+  @apply bg-white text-black;
+  
 }
-button:hover {
-  background-color: var(--background);
-  color: var(--foreground);
-  border: 1px solid var(--foreground);
+.button {
+  background-color: rgb(34, 197, 94);
+  color: var(--background);
+  border: 10px solid rgb(34, 197, 94);
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: rgb(21, 128, 61);
+  border: 10px solid rgb(21, 128, 61);
+}
+
+.button:active {
+  background-color: rgb(16, 185, 129);
+  border: 10px solid rgb(16, 185, 129);
+  transform: scale(0.98); /* nice click effect */
+}
+.bike-bg {
+  background-image: url("../assets/bike(1).png");
+  background-size: cover;
+  background-position: center;
 }
