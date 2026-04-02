@@ -46,7 +46,7 @@ function Signin() {
       if (data.user.role === "admin") {
         router.push("/admin");
       } else {
-        router.push("/profile");
+        router.push("/user");
       }
 
     } catch (err) {
