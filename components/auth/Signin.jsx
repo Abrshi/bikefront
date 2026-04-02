@@ -32,6 +32,7 @@ function Signin() {
     try {
       const res = await axiosbaseurl.post("/auth/signin", form);
       const data = res.data;
+      console.log(data);
 
       // ✅ save user globally (context)
       if (data.user) {

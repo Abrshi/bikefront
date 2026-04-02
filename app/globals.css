@@ -53,3 +53,8 @@ body {
   background-size: cover;
   background-position: center;
 }
+@layer components {
+  .input {
+    @apply w-full border p-2 rounded mt-1;
+  }
+}
