@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Home() {
@@ -18,12 +19,12 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-2xl shadow border">
-          <h3 className="font-semibold text-slate-700">Nearby Bikes</h3>
+        <Link href="/station" className="bg-green-100 p-5 rounded-2xl shadow border border-green-500">
+          <h3 className="font-semibold text-slate-700">Nearby station</h3>
           <p className="text-2xl font-bold text-green-600 mt-2">12</p>
-        </div>
+        </Link>
 
-        <div className="bg-white p-5 rounded-2xl shadow border">
+        <div className="bg-green-100 p-5 rounded-2xl shadow border border-green-500">
           <h3 className="font-semibold text-slate-700">Active Ride</h3>
           <p className="text-2xl font-bold text-green-600 mt-2">0</p>
         </div>

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Bike, MapPin, Home, User } from "lucide-react";
+import Loading from "@/components/Loading";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -17,12 +18,13 @@ export default function AdminLayout({ children }) {
     }
   }, [user, loading]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <><Loading /></>;
   if (!user) return null;
 
   const navItems = [
     { name: "Home", href: "/", icon: Home },
-    { name: "My Rides", href: "/rides", icon: Bike },
+    { name: "Station", href: "/station", icon: MapPin },
+    { name: "Rides", href: "/rides", icon: Bike },
     { name: "Map", href: "/map", icon: MapPin },
     { name: "Me", href: "/profile", icon: User },
   ];
@@ -40,7 +42,7 @@ export default function AdminLayout({ children }) {
               className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl text-sm w-32 h-17
               ${
                 isActive
-                  ? "text-green-600/85 underline underline-offset-8 bg-green-100 "
+                  ? "text-green-600/85 underline underline-offset-8 bg-green-100 border border-green-500 shadow"
                   : "text-slate-600 hover:bg-green-50"
               }`}
             >
