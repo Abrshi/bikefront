@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { axiosbaseurl } from "@/axios/axios";
 import { Battery, MapPin, Lock, QrCode } from "lucide-react";
+import QRCode from "react-qr-code";
+import QrScanner from "qr-scanner";
 
 export default function BikeDetail() {
   const { id } = useParams();
@@ -12,7 +14,12 @@ export default function BikeDetail() {
   const [loading, setLoading] = useState(true);
   const [dockCode, setDockCode] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
+  const videoRef = useRef(null);
+  const scannerRef = useRef(null);
+
+  // 🚲 Fetch bike
   useEffect(() => {
     const fetchBike = async () => {
       try {
@@ -28,7 +35,30 @@ export default function BikeDetail() {
     if (id) fetchBike();
   }, [id]);
 
-  // 🚲 Unlock bike using dock code
+  // 📷 QR Scanner logic
+  useEffect(() => {
+    if (scanning && videoRef.current) {
+      scannerRef.current = new QrScanner(
+        videoRef.current,
+        (result) => {
+          setDockCode(result.data);
+          setScanning(false);
+        },
+        {
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+        }
+      );
+
+      scannerRef.current.start();
+    }
+
+    return () => {
+      scannerRef.current?.stop();
+    };
+  }, [scanning]);
+
+  // 🔓 Unlock bike
   const handleUnlock = async () => {
     if (!dockCode) return alert("Enter dock code");
 
@@ -49,8 +79,11 @@ export default function BikeDetail() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (!bike) return <p className="text-center mt-10">Bike not found</p>;
+  if (loading)
+    return <p className="text-center mt-10 animate-pulse">Loading...</p>;
+
+  if (!bike)
+    return <p className="text-center mt-10">Bike not found</p>;
 
   const batteryColor =
     bike.battery_level > 70
@@ -86,7 +119,7 @@ export default function BikeDetail() {
         </div>
       </div>
 
-      {/* 🔓 DOCK UNLOCK SECTION */}
+      {/* 🔓 UNLOCK SECTION */}
       <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3">
         <h2 className="font-semibold flex items-center gap-2">
           <Lock size={16} /> Unlock Dock / Bike
@@ -107,14 +140,34 @@ export default function BikeDetail() {
         >
           {actionLoading ? "Unlocking..." : "Unlock Bike"}
         </button>
+
+        {/* 🎥 Scan Button */}
+        <button
+          onClick={() => setScanning(!scanning)}
+          className="border py-2 rounded-xl text-sm hover:bg-gray-100 transition"
+        >
+          {scanning ? "Stop Scanner" : "Scan QR Code"}
+        </button>
+
+        {/* 📷 CAMERA */}
+        {scanning && (
+          <div className="relative rounded-xl overflow-hidden">
+            <video ref={videoRef} className="w-full rounded-xl" />
+
+            {/* 🔥 Scan overlay */}
+            <div className="absolute inset-0 border-4 border-green-500 rounded-xl animate-pulse pointer-events-none" />
+          </div>
+        )}
       </div>
 
-      {/* 📷 QR INFO */}
+      {/* 🧪 TEST QR */}
       <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3 items-center">
         <QrCode size={40} className="text-green-600" />
         <p className="text-sm text-slate-500 text-center">
-          Scan dock QR or enter code under it to unlock bike
+          Test QR (scan this 👇)
         </p>
+
+        <QRCode value="DOCK-12345" size={120} />
       </div>
 
     </div>
