@@ -6,6 +6,7 @@ import { axiosbaseurl } from "@/axios/axios";
 import { Battery, MapPin, Lock, QrCode } from "lucide-react";
 import QRCode from "react-qr-code";
 import QrScanner from "qr-scanner";
+import { useAuth } from "../../../../context/AuthContext";
 
 export default function BikeDetail() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function BikeDetail() {
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
 
+  const { user } = useAuth();
   // 🚲 Fetch bike
   useEffect(() => {
     const fetchBike = async () => {
@@ -65,15 +67,16 @@ export default function BikeDetail() {
     try {
       setActionLoading(true);
 
-      await axiosbaseurl.post(`/bike/unlock`, {
-        bike_id: bike.bike_id,
+      await axiosbaseurl.post(`/unlock`, {
         dock_code: dockCode,
+        user:user.id,
+        bike_id: bike.bike_id,
       });
-
+     
       alert("Bike Unlocked 🚀");
       setDockCode("");
     } catch (err) {
-      alert("Invalid dock code ❌");
+      alert(response?.data?.message || "Failed to unlock bike");
     } finally {
       setActionLoading(false);
     }
@@ -161,14 +164,14 @@ export default function BikeDetail() {
       </div>
 
       {/* 🧪 TEST QR */}
-      <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3 items-center">
+      {/* <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3 items-center">
         <QrCode size={40} className="text-green-600" />
         <p className="text-sm text-slate-500 text-center">
           Test QR (scan this 👇)
         </p>
 
         <QRCode value="DOCK-12345" size={120} />
-      </div>
+      </div> */}
 
     </div>
   );

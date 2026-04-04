@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { axiosbaseurl } from "@/axios/axios";
+import AdminBikes from "@/components/admin/bike/AdminBikes";
 
 export default function BikePage() {
   const [stations, setStations] = useState([]);
@@ -100,6 +101,7 @@ export default function BikePage() {
       <button onClick={handleSubmit} className="button">
         {loading ? "Creating..." : "Create Bike"}
       </button>
+      <AdminBikes />
     </div>
   );
 }
