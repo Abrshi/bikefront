@@ -38,7 +38,7 @@ export default function Dock() {
               <td>{s.city}</td>
               <td>{s.area_name}</td>
 
-              <td className="space-x-2">
+              <td className="space-x-2 p-2">
                 <button
                   onClick={() =>
                     router.push(`/admin/dock/${s.station_id}`)
@@ -46,6 +46,14 @@ export default function Dock() {
                   className="bg-green-500 text-white px-2 py-1 rounded"
                 >
                   Manage Docks
+                </button>
+                <button
+                  onClick={() =>
+                    router.push(`/admin/dock/docks/${s.station_id}`)
+                  }
+                  className="bg-green-500 text-white px-2 py-1 rounded"
+                >
+                  view Docks
                 </button>
               </td>
             </tr>

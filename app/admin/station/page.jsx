@@ -8,7 +8,7 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState("create");
 
   return (
-    <div className="p-4">
+    <div className="p-4 m-2">
       {/* Header Nav */}
       <div className="flex gap-4 mb-6 border-b pb-2">
         <button

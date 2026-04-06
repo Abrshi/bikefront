@@ -1,26 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { axiosbaseurl } from "@/axios/axios";
-import { Battery, MapPin, Lock, QrCode } from "lucide-react";
-import QRCode from "react-qr-code";
+import { Battery, MapPin, Lock, CheckCircle } from "lucide-react";
 import QrScanner from "qr-scanner";
 import { useAuth } from "../../../../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function BikeDetail() {
   const { id } = useParams();
+  const router = useRouter();
 
   const [bike, setBike] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dockCode, setDockCode] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
 
   const { user } = useAuth();
+
   // 🚲 Fetch bike
   useEffect(() => {
     const fetchBike = async () => {
@@ -28,7 +31,7 @@ export default function BikeDetail() {
         const res = await axiosbaseurl.get(`/bike/${id}`);
         setBike(res.data);
       } catch (err) {
-        console.error("Failed to load bike");
+        toast.error("Failed to load bike");
       } finally {
         setLoading(false);
       }
@@ -37,14 +40,23 @@ export default function BikeDetail() {
     if (id) fetchBike();
   }, [id]);
 
-  // 📷 QR Scanner logic
+  // 📷 QR Scanner logic (AUTO UNLOCK)
   useEffect(() => {
     if (scanning && videoRef.current) {
+      if (scannerRef.current) {
+        scannerRef.current.stop();
+        scannerRef.current.destroy();
+      }
+
       scannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
           setDockCode(result.data);
           setScanning(false);
+          toast.success("QR scanned ✅");
+
+          // 🔥 AUTO UNLOCK AFTER SCAN
+          setTimeout(() => handleUnlock(result.data), 500);
         },
         {
           highlightScanRegion: true,
@@ -57,33 +69,57 @@ export default function BikeDetail() {
 
     return () => {
       scannerRef.current?.stop();
+      scannerRef.current?.destroy();
     };
   }, [scanning]);
 
   // 🔓 Unlock bike
-  const handleUnlock = async () => {
-    if (!dockCode) return alert("Enter dock code");
+  const handleUnlock = async (codeOverride) => {
+    const code = codeOverride || dockCode;
+
+    if (!code) {
+      toast.error("Enter or scan dock code");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Login required");
+      return;
+    }
 
     try {
       setActionLoading(true);
 
-      await axiosbaseurl.post(`/unlock`, {
-        dock_code: dockCode,
-        user:user.id,
+      const response = await axiosbaseurl.post(`/unlock`, {
+        dock_code: code,
+        user: user.id,
         bike_id: bike.bike_id,
       });
-     
-      alert("Bike Unlocked 🚀");
+
+      toast.success(response.data?.message || "Bike unlocked 🚲");
+
+      // 🎉 SUCCESS ANIMATION
+      setSuccess(true);
+
+      // 🚀 Redirect after 2s
+      setTimeout(() => {
+        router.push("/rides");
+      }, 2000);
+
       setDockCode("");
     } catch (err) {
-      alert(response?.data?.message || "Failed to unlock bike");
+      toast.error(err?.response?.data?.message || "Unlock failed");
     } finally {
       setActionLoading(false);
     }
   };
 
   if (loading)
-    return <p className="text-center mt-10 animate-pulse">Loading...</p>;
+    return (
+      <p className="text-center mt-10 animate-pulse text-gray-500">
+        Loading...
+      </p>
+    );
 
   if (!bike)
     return <p className="text-center mt-10">Bike not found</p>;
@@ -97,6 +133,16 @@ export default function BikeDetail() {
 
   return (
     <div className="p-4 max-w-md mx-auto flex flex-col gap-4">
+      
+      {/* 🎉 SUCCESS OVERLAY */}
+      {success && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl flex flex-col items-center gap-3 animate-bounce">
+            <CheckCircle className="text-green-600 w-12 h-12" />
+            <p className="font-semibold text-lg">Bike Unlocked!</p>
+          </div>
+        </div>
+      )}
 
       {/* 🚲 BIKE CARD */}
       <div className="bg-white rounded-3xl shadow-lg p-5 flex flex-col gap-4">
@@ -137,7 +183,7 @@ export default function BikeDetail() {
         />
 
         <button
-          onClick={handleUnlock}
+          onClick={() => handleUnlock()}
           disabled={actionLoading}
           className="bg-green-600 text-white py-2 rounded-xl hover:bg-green-700 transition disabled:opacity-50"
         >
@@ -157,22 +203,10 @@ export default function BikeDetail() {
           <div className="relative rounded-xl overflow-hidden">
             <video ref={videoRef} className="w-full rounded-xl" />
 
-            {/* 🔥 Scan overlay */}
             <div className="absolute inset-0 border-4 border-green-500 rounded-xl animate-pulse pointer-events-none" />
           </div>
         )}
       </div>
-
-      {/* 🧪 TEST QR */}
-      {/* <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3 items-center">
-        <QrCode size={40} className="text-green-600" />
-        <p className="text-sm text-slate-500 text-center">
-          Test QR (scan this 👇)
-        </p>
-
-        <QRCode value="DOCK-12345" size={120} />
-      </div> */}
-
     </div>
   );
 }

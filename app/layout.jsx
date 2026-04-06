@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "Bike",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           {children}
+           <Toaster position="top-center" />
         </AuthProvider>
       </body>
     </html>

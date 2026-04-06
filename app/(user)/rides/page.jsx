@@ -3,7 +3,9 @@ import React from 'react'
 
 function page() {
   return (
-    <div><MyRides /></div>
+    <div>
+      <MyRides />
+    </div>
   )
 }
 

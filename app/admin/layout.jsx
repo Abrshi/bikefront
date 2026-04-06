@@ -10,6 +10,7 @@ import {
   MapPin,
   Boxes,
   Plus,
+  PlusCircle,
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -33,6 +34,7 @@ export default function AdminLayout({ children }) {
     { name: "Bikes", href: "/admin/bike", icon: Bike },
     { name: "Docks", href: "/admin/dock", icon: Boxes },
     { name: "Stations", href: "/admin/station", icon: MapPin },
+    { name: "Pricing", href: "/admin/pricing", icon: PlusCircle },
   ];
 
   return (
