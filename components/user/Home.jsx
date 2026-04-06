@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import { axiosbaseurl } from "@/axios/axios";
 import ScanToStart from "./ScanToStart";
+import StatsCard from "./StatsCard";
 
 export default function Home() {
   const { user } = useAuth();
@@ -79,9 +80,10 @@ export default function Home() {
       </div>
 
       {/* Map Button */}
-      <button className="bg-green-600 text-white py-3 rounded-xl shadow hover:bg-green-700 transition">
+      {/* <button className="bg-green-600 text-white py-3 rounded-xl shadow hover:bg-green-700 transition">
         🔍 Find Bikes on Map
-      </button>
+      </button> */}
+      <StatsCard />
       <ScanToStart />
     </div>
   );
