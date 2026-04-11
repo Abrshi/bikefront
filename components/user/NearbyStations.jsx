@@ -30,7 +30,7 @@ export default function NearbyStations() {
             `/nearbyStations/nearby?lat=${lat}&lng=${lng}`
           );
 
-          // ✅ DO NOT sort again (backend already smart sorts)
+          
           setStations(res.data);
           setLoading(false);
         } catch (err) {
@@ -45,7 +45,7 @@ export default function NearbyStations() {
     );
   }, []);
 
-  // 🔽 Toggle + fetch bikes
+  
   const handleToggle = async (stationId) => {
     if (openStationId === stationId) {
       setOpenStationId(null);
@@ -67,7 +67,7 @@ export default function NearbyStations() {
     }
   };
 
-  // ✅ LOADING UI (FIXED)
+  
   if (loading) {
     return (
       <div className="flex flex-col gap-4 animate-pulse">
@@ -95,7 +95,7 @@ export default function NearbyStations() {
     );
   }
 
-  // ❌ ERROR UI
+  
   if (error) {
     return (
       <div className="p-6 text-center text-red-500 bg-red-50 rounded-2xl border">
@@ -145,7 +145,7 @@ export default function NearbyStations() {
                     {station.distance?.toFixed(2)} km away
                   </p>
 
-                  {/* ✅ NEW: bike count */}
+                  
                   <p className="text-xs text-green-600 font-medium">
                     🚴 {station.available_bikes} bikes available
                   </p>
