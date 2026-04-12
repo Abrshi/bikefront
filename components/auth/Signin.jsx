@@ -6,17 +6,17 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, Bike } from "lucide-react";
+import Alert from "../Alert";
 
 function Signin() {
   const { login } = useAuth();
   const router = useRouter();
+ const [alert, setAlert] = useState(null);
 
   const [form, setForm] = useState({
     phone_number: "",
     password: ""
   });
-
-  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -27,7 +27,6 @@ function Signin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
 
     try {
       const res = await axiosbaseurl.post("/auth/signin", form);
@@ -40,22 +39,25 @@ function Signin() {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      setMessage("Login successful ✅");
+      
+      setAlert({ message: "Login successful", type: "success" })
 
       // ✅ role-based redirect
-      if (data.user.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
+       setTimeout(() => {
+        if (data.user.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
+      }, 1500);
 
     } catch (err) {
       console.error(err);
 
-      if (err.response?.data) {
-        setMessage(err.response.data.error || "Login failed");
+      if (err) {
+        setAlert({ message: "Login failed", type: "error" })
       } else {
-        setMessage("Server error");
+        setAlert({ message: "Server error", type: "error" });
       }
     }
   };
@@ -63,6 +65,9 @@ function Signin() {
   return (
     <div className="flex  items-center justify-center px-4">
 
+      {alert && (
+        <Alert message={alert.message} type={alert.type} />
+      )}
       <div className="w-full max-w-md">
 
         {/* HEADER */}
@@ -77,13 +82,7 @@ function Signin() {
         {/* CARD */}
         <div className="">
 
-          {/* MESSAGE */}
-          {message && (
-            <div className="mb-4 flex items-center gap-2 text-sm text-red-600">
-              <AlertCircle className="h-4 w-4" />
-              {message}
-            </div>
-          )}
+          
 
           <form onSubmit={handleSubmit} className="space-y-5">
 

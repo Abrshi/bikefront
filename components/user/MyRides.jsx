@@ -5,6 +5,7 @@ import { axiosbaseurl } from "@/axios/axios";
 import { Bike, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import EndRide from "./StopRide";
+import Alert from "../Alert";
 
 export default function MyRides() {
   const { user } = useAuth();
@@ -13,18 +14,18 @@ export default function MyRides() {
   const [currentRide, setCurrentRide] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEndRide, setShowEndRide] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   // 🎯 Handle result from EndRide
   const handleEndRideResult = (result) => {
     setShowEndRide(false);
 
     if (result.success) {
-      alert("Ride ended 🚲");
+      setAlert({ message: "Ride ended successfully 🚴", type: "success" });
 
-      // 🔥 Refresh rides without reload
       fetchRides();
     } else {
-      alert("Failed ❌");
+      setAlert({ message: "Failed to end ride", type: "error" });
     }
   };
 
@@ -82,6 +83,7 @@ export default function MyRides() {
       setCurrentRide(currentRes.data || null);
     } catch (err) {
       console.error(err);
+      setAlert({ message: "Failed to fetch rides", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -91,7 +93,6 @@ export default function MyRides() {
     fetchRides();
   }, [user]);
 
-  // ⏳ Loading UI
   if (loading) {
     return (
       <div className="p-5 space-y-3">
@@ -104,6 +105,12 @@ export default function MyRides() {
 
   return (
     <div className="p-5 flex flex-col gap-5 max-w-md mx-auto">
+
+      {/* ✅ ALERT */}
+      {alert && (
+        <Alert message={alert.message} type={alert.type} />
+      )}
+
       <h2 className="text-xl font-bold text-slate-800">My Rides 🚴</h2>
 
       {/* 🔥 CURRENT RIDE */}
@@ -134,10 +141,9 @@ export default function MyRides() {
             </span>
           </p>
 
-          {/* 🚀 End Ride Button */}
           <button
             onClick={() => setShowEndRide(true)}
-            className="bg-red-500 text-white px-3 py-2 rounded-xl mt-2"
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl mt-2 transition"
           >
             End Ride
           </button>
@@ -196,9 +202,9 @@ export default function MyRides() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-4 rounded-2xl w-full max-w-sm">
             <EndRide
-                bike_id={currentRide.bike?.bike_id}
-                onResult={handleEndRideResult}
-              />
+              bike_id={currentRide.bike?.bike_id}
+              onResult={handleEndRideResult}
+            />
             <button
               onClick={() => setShowEndRide(false)}
               className="mt-3 text-sm text-gray-500"

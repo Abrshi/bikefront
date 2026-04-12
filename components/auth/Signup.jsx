@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Bike, AlertCircle } from "lucide-react";
 import { axiosbaseurl } from "../../axios/axios";
-
+import Alert from "../Alert";
 export default function Signup({ setToggle }) {
   const [form, setForm] = useState({
     first_name: "",
@@ -16,6 +16,7 @@ export default function Signup({ setToggle }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
+ const [alert, setAlert] = useState(null);
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -25,16 +26,12 @@ export default function Signup({ setToggle }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setIsError(false);
+    
 
     try {
       const res = await axiosbaseurl.post("/auth/signup", form);
 
-      setMessage("Account created successfully ✅");
-      setIsError(false);
-
-      console.log(res.data);
+          setAlert({ message: "Account created successfully", type: "success" })
 
       // reset form
       setForm({
@@ -53,15 +50,19 @@ export default function Signup({ setToggle }) {
       setIsError(true);
 
       if (err.response && err.response.data) {
-        setMessage(err.response.data.error || "Signup failed");
+        setAlert({ message: "Signup failed", type: "error" });
       } else {
-        setMessage("Server error");
+        setAlert({ message: "Server error", type: "error" });
       }
     }
   };
 
   return (
     <div className="flex items-center justify-center px-4">
+      {alert && (
+        <Alert message={alert.message} type={alert.type} />
+      )}
+
       <div className="w-full animate-fade-in max-w-lg">
         
         {/* Header */}
@@ -77,21 +78,6 @@ export default function Signup({ setToggle }) {
             Create your account
           </p>
         </div>
-
-        {/* Message */}
-        {message && (
-          <div
-            className={`mb-4 flex items-center gap-2 rounded-lg px-4 py-3 text-sm ${
-              isError
-                ? "bg-red-100 text-red-600"
-                : "bg-green-100 text-green-600"
-            }`}
-          >
-            <AlertCircle className="h-4 w-4" />
-            {message}
-          </div>
-        )}
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           

@@ -38,7 +38,7 @@ export default function Home() {
   }, [user?.id]);
 
   return (
-    <div className="p-5 flex flex-col gap-6">
+    <div className="p-5 flex flex-col gap-6 ">
       {/* Welcome Card */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
         <h2 className="text-xl font-bold">

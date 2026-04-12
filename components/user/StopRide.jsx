@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import QrScanner from "qr-scanner";
 import { axiosbaseurl } from "@/axios/axios";
 import { useAuth } from "@/context/AuthContext";
-
+import Alert from "../Alert";
 function EndRide({ onResult, bike_id }) {
   const { user } = useAuth();
 
@@ -15,7 +15,8 @@ function EndRide({ onResult, bike_id }) {
   const [manualCode, setManualCode] = useState("");
   const [scannedCode, setScannedCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("scanning");
+
+  const [alert, setAlert] = useState(null);
 
   // 🎥 Start scanner
   useEffect(() => {
@@ -30,7 +31,7 @@ function EndRide({ onResult, bike_id }) {
 
         const code = result.data;
         setScannedCode(code);
-        setStatus("scanned");
+        setAlert({ message: "QR code scanned", type: "success" });
 
         handleSubmit(code);
       },
@@ -42,10 +43,10 @@ function EndRide({ onResult, bike_id }) {
 
     scanner
       .start()
-      .then(() => setStatus("scanning"))
+      .then(() => setAlert({ message: "Scanner initialized", type: "warning" }))
       .catch((err) => {
         console.error(err);
-        setStatus("error");
+        setAlert({ message: "Camera error or permission denied", type: "error" });
       });
 
     scannerRef.current = scanner;
@@ -61,13 +62,13 @@ function EndRide({ onResult, bike_id }) {
     const dock_code = autoCode || scannedCode || manualCode;
 
     if (!dock_code || !user || !bike_id) {
-      setStatus("error");
+      setAlert({ message: "Missing data for locking", type: "error" });
       return;
     }
 
     hasScannedRef.current = true;
     setLoading(true);
-    setStatus("processing");
+    setAlert({ message: "Locking bike...", type: "warning" });
 
     try {
       const res = await axiosbaseurl.post("/lockbike", {
@@ -77,7 +78,7 @@ function EndRide({ onResult, bike_id }) {
       });
 
       if (res.status === 200 || res.status === 201) {
-        setStatus("success");
+        setAlert({ message: "Bike locked successfully", type: "success" });
 
         // 🛑 stop camera
         scannerRef.current?.stop();
@@ -86,12 +87,13 @@ function EndRide({ onResult, bike_id }) {
           onResult({ success: true, data: res.data });
         }, 1200);
       } else {
-        throw new Error("Failed");
+        setAlert({ message: "Failed to lock bike", type: "error" });
+        hasScannedRef.current = false;
       }
     } catch (err) {
       console.error(err);
 
-      setStatus("error");
+      setAlert({ message: "Failed to lock bike", type: "error" });
       hasScannedRef.current = false;
 
       onResult({ success: false });
@@ -102,6 +104,7 @@ function EndRide({ onResult, bike_id }) {
 
   return (
     <div className="flex flex-col items-center p-6 bg-white rounded-3xl shadow-2xl max-w-md mx-auto">
+      <Alert/>
       <h2 className="text-xl font-bold text-gray-800 mb-4">
         🔒 Lock Your Bike
       </h2>
@@ -115,14 +118,7 @@ function EndRide({ onResult, bike_id }) {
         </div>
       </div>
 
-      {/* 📊 Status */}
-      <div className="mt-4 text-sm font-medium">
-        {status === "scanning" && "Scanning dock QR... 📷"}
-        {status === "scanned" && "Dock detected ✔️"}
-        {status === "processing" && "Locking bike... ⏳"}
-        {status === "success" && "Bike locked successfully 🔒"}
-        {status === "error" && "Failed to lock ❌"}
-      </div>
+    
 
       {/* Code preview */}
       {(scannedCode || manualCode) && (
@@ -137,14 +133,14 @@ function EndRide({ onResult, bike_id }) {
         placeholder="Enter dock code manually"
         value={manualCode}
         onChange={(e) => setManualCode(e.target.value)}
-        disabled={status === "processing" || status === "success"}
+        disabled={alert === "warning" || alert === "success"}
         className="mt-4 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
       />
 
       {/* Submit */}
       <button
         onClick={() => handleSubmit()}
-        disabled={loading || status === "success"}
+        disabled={loading || alert?.type === "success"}
         className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl transition disabled:opacity-50"
       >
         {loading ? "Processing..." : "Lock Bike"}
