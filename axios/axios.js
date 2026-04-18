@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const axiosbaseurl = axios.create({
   
- baseURL: process.env.NEXT_PUBLIC_BASEURL,
+ baseURL:' http://localhost:5500/api/v1',
   withCredentials: true, // 
 });
 
