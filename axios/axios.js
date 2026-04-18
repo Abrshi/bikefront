@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const axiosbaseurl = axios.create({
   
- baseURL:'https://bikeback.onrender.com//api/v1',
+ baseURL:'https://bikeback.onrender.com/api/v1',
   withCredentials: true, // 
 });
 
