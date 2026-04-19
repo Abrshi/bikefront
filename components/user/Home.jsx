@@ -12,6 +12,25 @@ export default function Home() {
 
   const [activeRide, setActiveRide] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalBikes: 0,
+    availableBikes: 0,
+    totalStations: 0,
+  });
+ useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axiosbaseurl.get("/stats");
+        setStats(res.data);
+      } catch (err) {
+        console.error("Failed to load stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const fetchRide = async () => {
@@ -59,7 +78,7 @@ export default function Home() {
             Nearby station
           </h3>
           <p className="text-2xl font-bold text-green-600 mt-2">
-            12
+            {stats.totalStations}
           </p>
         </Link>
 

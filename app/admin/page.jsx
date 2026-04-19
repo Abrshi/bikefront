@@ -1,8 +1,13 @@
+import Dashboard from '@/components/admin/dashboard/Dashboard'
+import Data from '@/components/admin/dashboard/Data'
 import React from 'react'
 
 function page() {
   return (
-    <div>admin</div>
+    <div>
+      <Data/>
+      <Dashboard/>
+    </div>
   )
 }
 
