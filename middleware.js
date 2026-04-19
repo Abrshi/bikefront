@@ -4,7 +4,8 @@ import { jwtVerify } from "jose";
 export async function middleware(req) {
   const token = req.cookies.get("accessToken")?.value;
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-console.log("Middleware check - Token:", token, "Admin Route:", isAdminRoute);
+
+  // No token
   if (isAdminRoute && !token) {
     return NextResponse.redirect(new URL("/areYouLost", req.url));
   }
@@ -15,7 +16,8 @@ console.log("Middleware check - Token:", token, "Admin Route:", isAdminRoute);
 
       const { payload } = await jwtVerify(token, secret);
 
-      if (isAdminRoute && payload.role !== "admin") {
+      // Role check
+      if (isAdminRoute && payload.role?.toLowerCase() !== "admin") {
         return NextResponse.redirect(new URL("/", req.url));
       }
     }
